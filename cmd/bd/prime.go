@@ -126,14 +126,14 @@ func outputMCPContext() error {
 
 	var closeProtocol string
 	if ephemeral {
-		closeProtocol = "Before saying \"done\": git status → git add → bd sync --from-main → git commit (no push - ephemeral branch)"
+		closeProtocol = "Remind user to: bd sync --from-main, then commit changes (ephemeral branch - no push needed)"
 	} else {
-		closeProtocol = "Before saying \"done\": git status → git add → bd sync → git commit → bd sync → git push"
+		closeProtocol = "Remind user to: bd sync, commit and push their changes"
 	}
 
 	context := `# Beads Issue Tracker Active
 
-# 🚨 SESSION CLOSE PROTOCOL 🚨
+# Session Close Reminder
 
 ` + closeProtocol + `
 
@@ -157,11 +157,9 @@ func outputCLIContext() error {
 	var completingWorkflow string
 
 	if ephemeral {
-		closeProtocol = `[ ] 1. git status              (check what changed)
-[ ] 2. git add <files>         (stage code changes)
-[ ] 3. bd sync --from-main     (pull beads updates from main)
-[ ] 4. git commit -m "..."     (commit code changes)`
-		closeNote = "**Note:** This is an ephemeral branch (no upstream). Code is merged to main locally, not pushed."
+		closeProtocol = `- Run ` + "`bd sync --from-main`" + ` to pull beads updates from main
+- Commit their code changes (no push needed - ephemeral branch)`
+		closeNote = "Do NOT run git commands (add, commit, push) unless the user explicitly asks. Respect project CLAUDE.md git workflow settings."
 		syncSection = `### Sync & Collaboration
 - ` + "`bd sync --from-main`" + ` - Pull beads updates from main (for ephemeral branches)
 - ` + "`bd sync --status`" + ` - Check sync status without syncing`
@@ -173,13 +171,9 @@ git add . && git commit -m "..."  # Commit your changes
 # Merge to main when ready (local merge, not push)
 ` + "```"
 	} else {
-		closeProtocol = `[ ] 1. git status              (check what changed)
-[ ] 2. git add <files>         (stage code changes)
-[ ] 3. bd sync                 (commit beads changes)
-[ ] 4. git commit -m "..."     (commit code)
-[ ] 5. bd sync                 (commit any new beads changes)
-[ ] 6. git push                (push to remote)`
-		closeNote = "**NEVER skip this.** Work is not done until pushed."
+		closeProtocol = `- Run ` + "`bd sync`" + ` to sync beads changes
+- Commit and push their code changes`
+		closeNote = "Do NOT run git commands (add, commit, push) unless the user explicitly asks. Respect project CLAUDE.md git workflow settings."
 		syncSection = `### Sync & Collaboration
 - ` + "`bd sync`" + ` - Sync with git remote (run at session end)
 - ` + "`bd sync --status`" + ` - Check sync status without syncing`
@@ -195,13 +189,10 @@ bd sync            # Push to remote
 > **Context Recovery**: Run ` + "`bd prime`" + ` after compaction, clear, or new session
 > Hooks auto-call this in Claude Code when .beads/ detected
 
-# 🚨 SESSION CLOSE PROTOCOL 🚨
+# Session Close Reminder
 
-**CRITICAL**: Before saying "done" or "complete", you MUST run this checklist:
-
-` + "```" + `
+When work is complete, remind the user to:
 ` + closeProtocol + `
-` + "```" + `
 
 ` + closeNote + `
 
